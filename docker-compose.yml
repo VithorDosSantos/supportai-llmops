@@ -1,0 +1,25 @@
+# Infra local. Serviços novos (MLflow, Langfuse, API) entram nas fases seguintes.
+services:
+  db:
+    # Imagem oficial do pgvector: Postgres 16 com a extensão já compilada.
+    image: pgvector/pgvector:pg16
+    container_name: supportai-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-supportai}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-supportai}
+      POSTGRES_DB: ${DB_NAME:-supportai}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Scripts aqui rodam só na primeira inicialização (volume vazio).
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:

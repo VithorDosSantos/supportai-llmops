@@ -9,7 +9,7 @@ from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field, SecretStr, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -41,10 +41,10 @@ class DatabaseSettings(BaseSettings):
     name: str = "supportai"
 
     @property
-    def url(self) -> str:
-        """DSN no formato aceito por SQLAlchemy/psycopg 3."""
+    def dsn(self) -> str:
+        """URI libpq, aceita diretamente pelo psycopg 3."""
         pwd = self.password.get_secret_value()
-        return f"postgresql+psycopg://{self.user}:{pwd}@{self.host}:{self.port}/{self.name}"
+        return f"postgresql://{self.user}:{pwd}@{self.host}:{self.port}/{self.name}"
 
 
 class LLMSettings(BaseSettings):
@@ -60,6 +60,15 @@ class LLMSettings(BaseSettings):
     # Chaves sem prefixo: são os nomes que os SDKs oficiais já esperam.
     anthropic_api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
     openai_api_key: SecretStr | None = Field(default=None, validation_alias="OPENAI_API_KEY")
+
+    @field_validator("anthropic_api_key", "openai_api_key", mode="before")
+    @classmethod
+    def _empty_key_is_none(cls, value: object) -> object:
+        # `ANTHROPIC_API_KEY=` no .env chega como "", que não é None e burlaria
+        # a checagem abaixo.
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
 
     @model_validator(mode="after")
     def _require_key_for_paid_provider(self) -> "LLMSettings":

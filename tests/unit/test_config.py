@@ -53,9 +53,9 @@ def test_env_vars_override_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     assert settings.seed == 7
 
 
-def test_database_url() -> None:
-    url = DatabaseSettings(host="h", port=1, user="u", password=SecretStr("p"), name="n").url
-    assert url == "postgresql+psycopg://u:p@h:1/n"
+def test_database_dsn() -> None:
+    dsn = DatabaseSettings(host="h", port=1, user="u", password=SecretStr("p"), name="n").dsn
+    assert dsn == "postgresql://u:p@h:1/n"
 
 
 def test_invalid_provider_is_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -67,6 +67,13 @@ def test_invalid_provider_is_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
 @pytest.mark.parametrize("provider", ["anthropic", "openai"])
 def test_paid_provider_requires_api_key(monkeypatch: pytest.MonkeyPatch, provider: str) -> None:
     monkeypatch.setenv("LLM_PROVIDER", provider)
+    with pytest.raises(ValidationError, match="chave de API"):
+        LLMSettings()
+
+
+def test_empty_api_key_counts_as_missing(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("LLM_PROVIDER", "anthropic")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "")
     with pytest.raises(ValidationError, match="chave de API"):
         LLMSettings()
 

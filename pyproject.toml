@@ -9,6 +9,7 @@ license = { text = "MIT" }
 # (torch, sentence-transformers, mlflow) chegam na fase que precisa delas,
 # mantendo o CI rápido e cada dependência justificada.
 dependencies = [
+    "psycopg[binary]>=3.2",
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
 ]
