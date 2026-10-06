@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+dist/
+
+# Ferramentas
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Segredos: nunca versionar
+.env
+.env.*
+!.env.example
+
+# Artefatos de ML (dados vão para o DVC, modelos para o MLflow)
+mlruns/
+mlartifacts/
+data/raw/*
+data/processed/*
+!data/**/.gitkeep
+
+# Editores / SO
+.idea/
+.vscode/
+.DS_Store
