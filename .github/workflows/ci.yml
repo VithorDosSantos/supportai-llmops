@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, tipos e testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: supportai
+          POSTGRES_PASSWORD: supportai
+          POSTGRES_DB: supportai
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U supportai"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Instalar dependências
+        # --locked: falha se o uv.lock estiver desatualizado em relação ao pyproject.
+        run: uv sync --locked
+
+      - name: Ruff (lint)
+        run: uv run ruff check --output-format=github .
+
+      - name: Ruff (format)
+        run: uv run ruff format --check .
+
+      - name: Mypy
+        run: uv run mypy
+
+      - name: Habilitar pgvector
+        # Service containers não montam o init do compose; criamos a extensão aqui.
+        run: |
+          uv run python -c "import psycopg; psycopg.connect('postgresql://supportai:supportai@localhost:5432/supportai', autocommit=True).execute('CREATE EXTENSION IF NOT EXISTS vector')"
+
+      - name: Pytest
+        run: uv run pytest --cov --cov-report=term-missing
