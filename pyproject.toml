@@ -5,27 +5,34 @@ description = "Plataforma de atendimento ao cliente com triagem por ML, RAG aval
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-# Dependências entram por fase: só o que já é usado. Bibliotecas pesadas
-# (torch, sentence-transformers, mlflow) chegam na fase que precisa delas,
-# mantendo o CI rápido e cada dependência justificada.
+# `dependencies` = só o necessário para SERVIR a triagem (é o que a imagem
+# Docker instala). Tudo que é de dados/treino/experimentos fica no grupo
+# `train`, instalado por padrão no `uv sync` local (ver default-groups).
+# mlflow-skinny é o cliente do MLflow sem servidor/UI: carrega modelos sem
+# arrastar flask, sqlalchemy, pyarrow e matplotlib (~500 MB a menos na imagem).
 dependencies = [
     "fastapi>=0.115",
-    "huggingface-hub>=0.26",
-    "matplotlib>=3.9",
-    "mlflow>=3.0",
+    "mlflow-skinny>=3.0",
     "pandas>=2.2",
-    "pandera[pandas]>=0.22",
     "prometheus-client>=0.21",
-    "psycopg[binary]>=3.2",
-    "pyarrow>=18.0",
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
     "pyyaml>=6.0",
     "scikit-learn>=1.5",
+    "skops>=0.10",
     "uvicorn[standard]>=0.32",
 ]
 
 [dependency-groups]
+# Pipeline de dados, treino, tracking/registry do MLflow e banco.
+train = [
+    "huggingface-hub>=0.26",
+    "matplotlib>=3.9",
+    "mlflow>=3.0",
+    "pandera[pandas]>=0.22",
+    "psycopg[binary]>=3.2",
+    "pyarrow>=18.0",
+]
 dev = [
     "dvc>=3.55",
     "httpx>=0.28",
@@ -37,6 +44,10 @@ dev = [
     "ruff>=0.8",
     "types-pyyaml>=6.0",
 ]
+
+[tool.uv]
+# `uv sync` instala tudo para desenvolver; a imagem usa --no-default-groups.
+default-groups = ["dev", "train"]
 
 [build-system]
 requires = ["hatchling"]

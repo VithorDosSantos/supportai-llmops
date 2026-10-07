@@ -4718,18 +4718,14 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
-    { name = "huggingface-hub" },
-    { name = "matplotlib" },
-    { name = "mlflow" },
+    { name = "mlflow-skinny" },
     { name = "pandas" },
-    { name = "pandera", extra = ["pandas"] },
     { name = "prometheus-client" },
-    { name = "psycopg", extra = ["binary"] },
-    { name = "pyarrow" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "pyyaml" },
     { name = "scikit-learn" },
+    { name = "skops" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -4745,22 +4741,26 @@ dev = [
     { name = "ruff" },
     { name = "types-pyyaml" },
 ]
+train = [
+    { name = "huggingface-hub" },
+    { name = "matplotlib" },
+    { name = "mlflow" },
+    { name = "pandera", extra = ["pandas"] },
+    { name = "psycopg", extra = ["binary"] },
+    { name = "pyarrow" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.115" },
-    { name = "huggingface-hub", specifier = ">=0.26" },
-    { name = "matplotlib", specifier = ">=3.9" },
-    { name = "mlflow", specifier = ">=3.0" },
+    { name = "mlflow-skinny", specifier = ">=3.0" },
     { name = "pandas", specifier = ">=2.2" },
-    { name = "pandera", extras = ["pandas"], specifier = ">=0.22" },
     { name = "prometheus-client", specifier = ">=0.21" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
-    { name = "pyarrow", specifier = ">=18.0" },
     { name = "pydantic", specifier = ">=2.9" },
     { name = "pydantic-settings", specifier = ">=2.6" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "scikit-learn", specifier = ">=1.5" },
+    { name = "skops", specifier = ">=0.10" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32" },
 ]
 
@@ -4775,6 +4775,14 @@ dev = [
     { name = "pytest-cov", specifier = ">=6.0" },
     { name = "ruff", specifier = ">=0.8" },
     { name = "types-pyyaml", specifier = ">=6.0" },
+]
+train = [
+    { name = "huggingface-hub", specifier = ">=0.26" },
+    { name = "matplotlib", specifier = ">=3.9" },
+    { name = "mlflow", specifier = ">=3.0" },
+    { name = "pandera", extras = ["pandas"], specifier = ">=0.22" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
+    { name = "pyarrow", specifier = ">=18.0" },
 ]
 
 [[package]]
