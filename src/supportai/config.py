@@ -92,7 +92,10 @@ class Settings(BaseSettings):
     seed: int = 42
     data_dir: Path = PROJECT_ROOT / "data"
     configs_dir: Path = PROJECT_ROOT / "configs"
-    mlflow_tracking_uri: str = "file:./mlruns"
+    # SQLite em vez do file store: o Model Registry (aliases como "champion")
+    # exige um backend de banco, e o file store está obsoleto no MLflow 3.
+    mlflow_tracking_uri: str = f"sqlite:///{PROJECT_ROOT / 'mlflow.db'}"
+    mlflow_artifact_root: Path = PROJECT_ROOT / "mlartifacts"
 
     db: DatabaseSettings = Field(default_factory=DatabaseSettings)
     llm: LLMSettings = Field(default_factory=LLMSettings)

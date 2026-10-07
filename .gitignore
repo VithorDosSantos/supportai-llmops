@@ -18,12 +18,11 @@ htmlcov/
 .env.*
 !.env.example
 
-# Artefatos de ML (dados vão para o DVC, modelos para o MLflow)
+# Artefatos de ML. Dados são rastreados pelo DVC (ele mesmo gera os
+# .gitignore de cada saída em data/); modelos e runs ficam no MLflow.
 mlruns/
 mlartifacts/
-data/raw/*
-data/processed/*
-!data/**/.gitkeep
+mlflow.db
 
 # Editores / SO
 .idea/
