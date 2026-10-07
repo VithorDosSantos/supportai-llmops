@@ -1,0 +1,9 @@
+# Contexto mínimo: só o que a imagem usa. Menos contexto = build mais rápido
+# e nenhum dado/segredo vazando para a imagem por acidente.
+*
+!pyproject.toml
+!uv.lock
+!README.md
+!src/
+!models/
+**/__pycache__

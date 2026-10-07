@@ -57,3 +57,34 @@ jobs:
 
       - name: Pytest
         run: uv run pytest --cov --cov-report=term-missing
+
+  docker:
+    name: Imagem Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build (target runtime)
+        # O alvo com modelos embutidos depende de `models/` exportado do
+        # registry local, que não existe no CI; o runtime valida o resto.
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runtime
+          tags: supportai-api:ci
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test
+        run: |
+          docker run --rm supportai-api:ci python -c "from supportai.api.main import create_app; print('import ok')"
+          docker run --rm supportai-api:ci id -u | grep -qx 10001
+
+      - name: Tamanho da imagem
+        run: |
+          size=$(docker image inspect supportai-api:ci --format '{{.Size}}')
+          echo "Imagem runtime: $((size / 1024 / 1024)) MB" | tee -a "$GITHUB_STEP_SUMMARY"

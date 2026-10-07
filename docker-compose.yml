@@ -1,4 +1,4 @@
-# Infra local. Serviços novos (MLflow, Langfuse, API) entram nas fases seguintes.
+# Infra local. Serviços novos (MLflow, Langfuse) entram nas fases seguintes.
 services:
   db:
     # Imagem oficial do pgvector: Postgres 16 com a extensão já compilada.
@@ -20,6 +20,20 @@ services:
       timeout: 3s
       retries: 10
     restart: unless-stopped
+
+  api:
+    # Modelos montados do host (gere com `uv run python -m supportai.classifier.export`).
+    build:
+      context: .
+      target: runtime
+    container_name: supportai-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models:ro
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    profiles: ["api"]
 
 volumes:
   pgdata:
