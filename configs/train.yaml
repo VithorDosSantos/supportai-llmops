@@ -1,0 +1,42 @@
+# Treino da triagem (Fase 1). Um modelo por alvo (categoria e urgência).
+#
+# Seleção de hiperparâmetros e do campeão usa SÓ a validação; o teste é
+# avaliado uma vez por run e nunca orienta escolhas (senão vira validação).
+
+seed: 42
+targets: [category, urgency]
+
+mlflow:
+  experiment: triage
+  registered_model_prefix: supportai-triage   # -> supportai-triage-category / -urgency
+  champion_alias: champion
+  selection_metric: val_f1_macro
+
+models:
+  tfidf:
+    # Palavras capturam termos de domínio ("refund", "invoice"); n-gramas de
+    # caracteres capturam variações morfológicas e erros de digitação.
+    word_ngram_range: [1, 2]
+    char_ngram_range: [3, 5]
+    min_df: 2
+    max_features_word: 50000
+    max_features_char: 100000
+    sublinear_tf: true
+    c_grid: [1.0, 4.0, 16.0, 64.0]
+    # balanced: returns_exchanges tem ~5% dos tickets; sem peso, o F1 macro
+    # sofre porque o modelo aprende a ignorar a classe rara.
+    class_weight: balanced
+    max_iter: 3000
+
+  embeddings:
+    encoders:
+      - name: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+        prefix: ""
+      # A família E5 foi treinada com prefixos; "query: " é o indicado para
+      # classificação/similaridade simétrica.
+      - name: intfloat/multilingual-e5-small
+        prefix: "query: "
+    batch_size: 64
+    c_grid: [0.25, 1.0, 4.0, 16.0]
+    class_weight: balanced
+    max_iter: 3000

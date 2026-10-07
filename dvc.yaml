@@ -1,0 +1,54 @@
+# Pipeline reprodutível: `uv run dvc repro` refaz só as etapas cujas
+# dependências (código, params ou dados) mudaram.
+stages:
+  download:
+    cmd: python -m supportai.data.download
+    deps:
+      - src/supportai/data/download.py
+    params:
+      - configs/data.yaml:
+          - source
+    outs:
+      - data/raw/tickets.csv
+
+  prepare:
+    cmd: python -m supportai.data.prepare
+    deps:
+      - data/raw/tickets.csv
+      - src/supportai/data/clean.py
+      - src/supportai/data/prepare.py
+      - src/supportai/data/schemas.py
+      - src/supportai/data/split.py
+    params:
+      - configs/data.yaml:
+          - filter
+          - split
+    outs:
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - data/processed/test.parquet
+    metrics:
+      # cache: false -> versionado no git, para o relatório aparecer nos diffs.
+      - reports/data.json:
+          cache: false
+
+  # Os runs e modelos ficam no MLflow; o DVC versiona o resumo das métricas
+  # e sabe quando re-treinar (dados, código ou params mudaram).
+  train_tfidf:
+    cmd: python -m supportai.classifier.train --model tfidf
+    deps:
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - data/processed/test.parquet
+      - src/supportai/classifier/config.py
+      - src/supportai/classifier/metrics.py
+      - src/supportai/classifier/models.py
+      - src/supportai/classifier/train.py
+    params:
+      - configs/train.yaml:
+          - seed
+          - targets
+          - models.tfidf
+    metrics:
+      - reports/train_tfidf.json:
+          cache: false

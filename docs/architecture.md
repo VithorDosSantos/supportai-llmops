@@ -41,6 +41,30 @@ flowchart LR
 - Postgres 16 + pgvector via `docker compose`.
 - CI: ruff, mypy (strict), pytest, com Postgres + pgvector como service container.
 
+## Estado atual (Fase 1)
+
+Pipeline de dados e treino da triagem, orquestrado pelo DVC (`dvc.yaml`):
+
+```mermaid
+flowchart LR
+    HF[(Hugging Face<br/>revisão fixada)] -->|download<br/>+ SHA-256| RAW[data/raw/tickets.csv]
+    RAW -->|prepare| CLEAN[Limpeza + Pandera]
+    CLEAN --> GROUP[Grupos de quase-duplicatas<br/>TF-IDF char, cosseno ≥ 0,8]
+    GROUP --> SPLIT[StratifiedGroupKFold<br/>train / val / test]
+    SPLIT --> PQ[(data/processed/*.parquet)]
+    PQ -->|train_tfidf| TF[TF-IDF + LogReg]
+    PQ -.->|train embeddings| EMB[Encoder multilíngue + LogReg]
+    TF --> MLF[(MLflow<br/>SQLite + artefatos)]
+    EMB -.-> MLF
+    MLF -->|registry.py:<br/>melhor val_f1_macro| REG[Model Registry<br/>alias champion]
+```
+
+- `src/supportai/data/`: config tipada (`configs/data.yaml`), download, schemas Pandera, limpeza,
+  split agrupado e loader da base de conhecimento.
+- `src/supportai/classifier/`: pipelines sklearn (texto cru → rótulo), métricas, treino com MLflow
+  e promoção do campeão.
+- Métricas versionadas no git em `reports/` (`data.json`, `train_*.json`).
+
 ## Decisões
 
 Ver [ADRs](decisions/).

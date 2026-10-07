@@ -1,0 +1,68 @@
+{
+  "rows_after_step": {
+    "raw": 28587,
+    "language": 16338,
+    "queue": 14577,
+    "priority": 14577,
+    "min_text_chars": 14576,
+    "exact_duplicates": 14576
+  },
+  "rows_per_split": {
+    "train": 10411,
+    "val": 2083,
+    "test": 2082
+  },
+  "fraction_per_split": {
+    "train": 0.7143,
+    "val": 0.1429,
+    "test": 0.1428
+  },
+  "near_duplicate_groups": {
+    "n_groups": 9679,
+    "rows_in_multi_ticket_groups": 8043,
+    "max_group_size": 11
+  },
+  "category_distribution": {
+    "train": {
+      "billing_payments": 0.1095,
+      "customer_service": 0.1653,
+      "it_support": 0.1331,
+      "product_support": 0.2108,
+      "returns_exchanges": 0.0563,
+      "technical_support": 0.3249
+    },
+    "val": {
+      "billing_payments": 0.1095,
+      "customer_service": 0.1647,
+      "it_support": 0.1335,
+      "product_support": 0.2108,
+      "returns_exchanges": 0.0566,
+      "technical_support": 0.325
+    },
+    "test": {
+      "billing_payments": 0.109,
+      "customer_service": 0.1657,
+      "it_support": 0.1335,
+      "product_support": 0.2109,
+      "returns_exchanges": 0.0557,
+      "technical_support": 0.3252
+    }
+  },
+  "urgency_distribution": {
+    "train": {
+      "high": 0.3924,
+      "low": 0.1922,
+      "medium": 0.4154
+    },
+    "val": {
+      "high": 0.3917,
+      "low": 0.193,
+      "medium": 0.4153
+    },
+    "test": {
+      "high": 0.3924,
+      "low": 0.1921,
+      "medium": 0.4155
+    }
+  }
+}

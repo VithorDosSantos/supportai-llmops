@@ -9,18 +9,29 @@ license = { text = "MIT" }
 # (torch, sentence-transformers, mlflow) chegam na fase que precisa delas,
 # mantendo o CI rápido e cada dependência justificada.
 dependencies = [
+    "huggingface-hub>=0.26",
+    "matplotlib>=3.9",
+    "mlflow>=3.0",
+    "pandas>=2.2",
+    "pandera[pandas]>=0.22",
     "psycopg[binary]>=3.2",
+    "pyarrow>=18.0",
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
+    "pyyaml>=6.0",
+    "scikit-learn>=1.5",
 ]
 
 [dependency-groups]
 dev = [
+    "dvc>=3.55",
     "mypy>=1.13",
+    "pandas-stubs>=3.0.5.260914",
     "pre-commit>=4.0",
     "pytest>=8.3",
     "pytest-cov>=6.0",
     "ruff>=0.8",
+    "types-pyyaml>=6.0",
 ]
 
 [build-system]
@@ -55,6 +66,14 @@ python_version = "3.11"
 strict = true
 files = ["src"]
 plugins = ["pydantic.mypy"]
+
+# Bibliotecas sem type hints (ou opcionais, ausentes no CI). `follow_imports =
+# "skip"` faz o mypy tratá-las como Any com ou sem o extra instalado, para que
+# o resultado seja o mesmo na máquina local e no CI.
+[[tool.mypy.overrides]]
+module = ["sentence_transformers.*", "torch.*", "sklearn.*", "scipy.*", "mlflow.*"]
+ignore_missing_imports = true
+follow_imports = "skip"
 
 [tool.pydantic-mypy]
 init_forbid_extra = true

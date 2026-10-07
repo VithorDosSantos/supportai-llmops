@@ -1,0 +1,12 @@
+{
+  "category": {
+    "grouped": 0.4452,
+    "random": 0.7302,
+    "inflation": 0.285
+  },
+  "urgency": {
+    "grouped": 0.4924,
+    "random": 0.7137,
+    "inflation": 0.2213
+  }
+}

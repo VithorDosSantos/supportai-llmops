@@ -1,0 +1,45 @@
+# Pipeline de dados da triagem (Fase 1). Tudo que muda o dataset final está
+# aqui, para que uma mudança de dados seja um diff revisável, não código.
+
+source:
+  repo_id: Tobi-Bueck/customer-support-tickets
+  # Revisão fixada (commit do repo no HF): o arquivo pode mudar no futuro.
+  revision: ddf1c81a5475992c4fa6752bf1e8b4e31f07bbeb
+  filename: aa_dataset-tickets-multi-lang-5-2-50-version.csv
+  # Confere que o arquivo baixado é exatamente o que foi usado nos experimentos.
+  sha256: f187c090e59581c2bbf3aa1377c8db4dd647464ecf2ae51bf8966e42e0ed6bc0
+  license: CC-BY-NC-4.0
+
+paths:
+  raw: data/raw/tickets.csv
+  processed_dir: data/processed
+
+filter:
+  language: en
+  # As 6 filas mais frequentes do subconjunto em inglês (cobrem ~89% dos
+  # tickets). Filas raras (HR, General Inquiry...) teriam poucos exemplos de teste.
+  queues:
+    Technical Support: technical_support
+    Product Support: product_support
+    Customer Service: customer_service
+    IT Support: it_support
+    Billing and Payments: billing_payments
+    Returns and Exchanges: returns_exchanges
+  # Mapeamento para 3 níveis de urgência. A revisão atual já usa
+  # low/medium/high; very_low/critical cobrem as outras versões do dataset.
+  priority_map:
+    very_low: low
+    low: low
+    medium: medium
+    high: high
+    critical: high
+  min_text_chars: 20
+
+split:
+  # Tickets com similaridade de cosseno >= limiar (TF-IDF de caracteres) ficam
+  # no mesmo grupo e, portanto, no mesmo split. O dataset é sintético e tem
+  # muitas paráfrases; sem isso, o teste mediria memorização.
+  near_duplicate_threshold: 0.8
+  test_size: 0.15
+  val_size: 0.15
+  seed: 42
