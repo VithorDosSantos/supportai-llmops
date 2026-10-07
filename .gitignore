@@ -28,3 +28,7 @@ mlflow.db
 .idea/
 .vscode/
 .DS_Store
+
+# Campeões exportados do registry (embutidos na imagem Docker; gerados por
+# `python -m supportai.classifier.export`)
+models/

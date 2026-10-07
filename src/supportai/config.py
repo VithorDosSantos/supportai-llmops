@@ -86,6 +86,25 @@ class LLMSettings(BaseSettings):
         return self
 
 
+class APISettings(BaseSettings):
+    """Serviço de triagem. Prefixo `API_` nas variáveis de ambiente."""
+
+    model_config = SettingsConfigDict(env_prefix="API_", env_file=".env", extra="ignore")
+
+    # URI do MLflow: `models:/<nome>@champion` (registry) ou um diretório local
+    # exportado (`supportai.classifier.export`), usado no container e no deploy.
+    model_uri_category: str = "models:/supportai-triage-category@champion"
+    model_uri_urgency: str = "models:/supportai-triage-urgency@champion"
+    # Limite de tamanho: protege a latência (TF-IDF de caracteres é linear no
+    # texto) e evita abuso; tickets reais têm < 2 mil caracteres.
+    max_text_chars: int = Field(default=5000, ge=100)
+    log_json: bool = True
+    # O MLflow 3 recusa desserializar modelos sklearn (inclusive skops) sem
+    # MLFLOW_ALLOW_PICKLE_DESERIALIZATION=true, porque carregar um artefato pode
+    # executar código. Opt-in explícito: só ligue para modelos do seu registry.
+    allow_model_deserialization: bool = False
+
+
 class Settings(BaseSettings):
     """Configuração raiz, agregando as seções."""
 
@@ -103,6 +122,7 @@ class Settings(BaseSettings):
 
     db: DatabaseSettings = Field(default_factory=DatabaseSettings)
     llm: LLMSettings = Field(default_factory=LLMSettings)
+    api: APISettings = Field(default_factory=APISettings)
 
 
 @lru_cache

@@ -9,22 +9,26 @@ license = { text = "MIT" }
 # (torch, sentence-transformers, mlflow) chegam na fase que precisa delas,
 # mantendo o CI rápido e cada dependência justificada.
 dependencies = [
+    "fastapi>=0.115",
     "huggingface-hub>=0.26",
     "matplotlib>=3.9",
     "mlflow>=3.0",
     "pandas>=2.2",
     "pandera[pandas]>=0.22",
+    "prometheus-client>=0.21",
     "psycopg[binary]>=3.2",
     "pyarrow>=18.0",
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
     "pyyaml>=6.0",
     "scikit-learn>=1.5",
+    "uvicorn[standard]>=0.32",
 ]
 
 [dependency-groups]
 dev = [
     "dvc>=3.55",
+    "httpx>=0.28",
     "mypy>=1.13",
     "pandas-stubs>=3.0.5.260914",
     "pre-commit>=4.0",
