@@ -8,11 +8,15 @@ em produção sem mudar código, e `SecretStr` evita que chaves vazem em logs/re
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
+from typing import TypeVar
 
-from pydantic import Field, SecretStr, field_validator, model_validator
+import yaml
+from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+ConfigT = TypeVar("ConfigT", bound=BaseModel)
 
 
 class LLMProvider(StrEnum):
@@ -105,3 +109,14 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Singleton barato; em testes, use `get_settings.cache_clear()`."""
     return Settings()
+
+
+def load_yaml_config(path: Path, model: type[ConfigT]) -> ConfigT:
+    """Lê um YAML de `configs/` e valida com um modelo Pydantic.
+
+    Validar na leitura transforma um erro de digitação no YAML em uma mensagem
+    clara no início do treino, em vez de um KeyError depois de minutos.
+    """
+    with path.open(encoding="utf-8") as fh:
+        raw = yaml.safe_load(fh)
+    return model.model_validate(raw)

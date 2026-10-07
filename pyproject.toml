@@ -25,6 +25,7 @@ dependencies = [
 dev = [
     "dvc>=3.55",
     "mypy>=1.13",
+    "pandas-stubs>=3.0.5.260914",
     "pre-commit>=4.0",
     "pytest>=8.3",
     "pytest-cov>=6.0",
