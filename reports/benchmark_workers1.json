@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "requests": 1000,
+      "concurrency": 1,
+      "p50_ms": 9.09,
+      "p95_ms": 13.58,
+      "p99_ms": 16.56,
+      "mean_ms": 9.77,
+      "throughput_rps": 101.8
+    },
+    {
+      "requests": 1000,
+      "concurrency": 4,
+      "p50_ms": 47.62,
+      "p95_ms": 68.91,
+      "p99_ms": 80.57,
+      "mean_ms": 47.97,
+      "throughput_rps": 83.3
+    }
+  ],
+  "models": {
+    "category": {
+      "name": "supportai-triage-category",
+      "version": "1"
+    },
+    "urgency": {
+      "name": "supportai-triage-urgency",
+      "version": "1"
+    }
+  },
+  "workers": 1,
+  "text_chars_mean": 404.1,
+  "machine": {
+    "cpu_count": 4,
+    "python": "3.13.16",
+    "platform": "Linux-6.18.44-fc-v77-x86_64-with-glibc2.39"
+  },
+  "command": "uv run python scripts/benchmark_latency.py --workers 1"
+}
