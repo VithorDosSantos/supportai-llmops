@@ -30,11 +30,20 @@ ticket (`reports/data.json`).
 
 ## Escolha do limiar
 
-_Tabela pendente: em geração por `uv run python scripts/near_duplicate_thresholds.py`._
+`uv run python scripts/near_duplicate_thresholds.py` (subconjunto em inglês do CSV bruto, todas
+as 10 filas, 16.338 tickets):
 
-Abaixo de 0,8 começam as cadeias longas (grupo de 37), que agrupariam tickets de fato diferentes
-e reduziriam a diversidade do teste. Em todos os limiares, menos de 1% dos grupos com mais de um
-ticket têm rótulos conflitantes, o que confirma que são paráfrases do mesmo ticket.
+| Limiar | Grupos | Maior grupo | Tickets em grupos com >1 | Grupos com >1 e fila conflitante |
+|---|---|---|---|---|
+| 0,90 | 14.287 | 5 | 3.570 | 0,0% |
+| 0,85 | 12.394 | 6 | 6.636 | 0,4% |
+| **0,80** | **10.843** | **14** | **9.027** | **0,6%** |
+| 0,75 | 9.725 | 24 | 10.727 | 1,1% |
+
+O tamanho do maior grupo e a fração de grupos com rótulos conflitantes crescem mais rápido abaixo
+de 0,8: são cadeias de tickets que já não são paráfrases do mesmo ticket. Em 0,8, só 0,6% dos
+grupos misturam filas, o que indica que quase todos são paráfrases genuínas, e ainda assim 9 mil
+tickets ficam protegidos contra vazamento.
 
 ## Trade-offs aceitos
 
