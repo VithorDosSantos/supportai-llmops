@@ -1,0 +1,16 @@
+{
+  "tfidf/category": {
+    "run_id": "0141adfdc2a04f20bb53e25fdc388b2f",
+    "best_C": 64.0,
+    "val_f1_macro": 0.4321,
+    "test_f1_macro": 0.434,
+    "test_accuracy": 0.4457
+  },
+  "tfidf/urgency": {
+    "run_id": "40a9e19b15744101a19923615815a60f",
+    "best_C": 16.0,
+    "val_f1_macro": 0.4756,
+    "test_f1_macro": 0.4777,
+    "test_accuracy": 0.5091
+  }
+}

@@ -84,3 +84,63 @@ stages:
       hash: md5
       md5: 374cf001a584922f9ff0da2369ca2ce5
       size: 1447
+  train_tfidf:
+    cmd: python -m supportai.classifier.train --model tfidf
+    deps:
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 956fd9b38302257fe4f10a0435326ba1
+      size: 793227
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: f221ce306d12d7bea68a9ed1c21848a5
+      size: 4005460
+    - path: data/processed/val.parquet
+      hash: md5
+      md5: 77199f15563a35ba72363bd2f4d9514e
+      size: 790289
+    - path: src/supportai/classifier/config.py
+      hash: md5
+      md5: 7805e390594e1c2ad2c11282268d8d2e
+      size: 1840
+    - path: src/supportai/classifier/metrics.py
+      hash: md5
+      md5: d3c1c8f79fe1b72191865e357c0aed42
+      size: 3037
+    - path: src/supportai/classifier/models.py
+      hash: md5
+      md5: 788aad619424e6c2364f7ddce02f1db9
+      size: 6544
+    - path: src/supportai/classifier/train.py
+      hash: md5
+      md5: eedb2eb96ed70d4a019405e2d8f00975
+      size: 12437
+    params:
+      configs/train.yaml:
+        models.tfidf:
+          word_ngram_range:
+          - 1
+          - 2
+          char_ngram_range:
+          - 3
+          - 5
+          min_df: 2
+          max_features_word: 50000
+          max_features_char: 100000
+          sublinear_tf: true
+          c_grid:
+          - 1.0
+          - 4.0
+          - 16.0
+          - 64.0
+          class_weight: balanced
+          max_iter: 3000
+        seed: 42
+        targets:
+        - category
+        - urgency
+    outs:
+    - path: reports/train_tfidf.json
+      hash: md5
+      md5: 1340b0cda7a81dd05fb41df09546237c
+      size: 365

@@ -31,3 +31,24 @@ stages:
       # cache: false -> versionado no git, para o relatório aparecer nos diffs.
       - reports/data.json:
           cache: false
+
+  # Os runs e modelos ficam no MLflow; o DVC versiona o resumo das métricas
+  # e sabe quando re-treinar (dados, código ou params mudaram).
+  train_tfidf:
+    cmd: python -m supportai.classifier.train --model tfidf
+    deps:
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - data/processed/test.parquet
+      - src/supportai/classifier/config.py
+      - src/supportai/classifier/metrics.py
+      - src/supportai/classifier/models.py
+      - src/supportai/classifier/train.py
+    params:
+      - configs/train.yaml:
+          - seed
+          - targets
+          - models.tfidf
+    metrics:
+      - reports/train_tfidf.json:
+          cache: false
