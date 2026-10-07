@@ -23,7 +23,9 @@ Sou um desenvolvedor construindo um **projeto de portfólio para vagas de ML Eng
 
 ## 2. O produto
 
-Sistema que recebe tickets de suporte de um e-commerce fictício (em **português**) e:
+Sistema que recebe tickets de suporte de um e-commerce fictício (a loja **Voltix**) e:
+
+> Idioma: tickets e base de conhecimento em **inglês** (não há dataset público adequado em português; ver `docs/decisions/0002-*`). README e docs em português.
 
 1. **Triagem (ML clássico):** classifica a categoria (ex.: entrega, pagamento, reembolso, produto com defeito, conta) e a urgência do ticket.
 2. **Resposta sugerida (RAG):** busca na base de conhecimento (FAQs, políticas de troca/reembolso, manuais) e gera uma resposta citando as fontes. Se não houver informação suficiente, recusa em vez de inventar.
@@ -102,14 +104,14 @@ Trabalhe **uma fase por vez**. Ao final de cada fase: rode lint e testes, atuali
 - [x] README inicial com objetivo e como rodar
 
 ### Fase 1 — Dados e classificador de triagem
-- [ ] Obter dados: procurar dataset público de tickets de suporte em português (Hugging Face/Kaggle). Se não houver um adequado, gerar dataset sintético com LLM e **documentar isso honestamente** no README, incluindo limitações.
-- [ ] Gerar também a base de conhecimento (FAQs e políticas do e-commerce fictício, ~20–40 documentos em Markdown)
-- [ ] Schema e validação com Pandera; pipeline de limpeza
-- [ ] Versionar dados com DVC
-- [ ] Baseline: TF-IDF + regressão logística
-- [ ] Modelo 2: embeddings (sentence-transformers multilíngue) + classificador
-- [ ] Split estratificado, métricas: F1 macro, matriz de confusão, relatório por classe
-- [ ] Tudo rastreado no MLflow; melhor modelo registrado no Model Registry
+- [x] Obter dados: procurar dataset público de tickets de suporte em português (Hugging Face/Kaggle). Se não houver um adequado, gerar dataset sintético com LLM e **documentar isso honestamente** no README, incluindo limitações.
+- [x] Gerar também a base de conhecimento (FAQs e políticas do e-commerce fictício, ~20–40 documentos em Markdown)
+- [x] Schema e validação com Pandera; pipeline de limpeza
+- [x] Versionar dados com DVC
+- [x] Baseline: TF-IDF + regressão logística
+- [ ] Modelo 2: embeddings (sentence-transformers multilíngue) + classificador *(código e testes prontos; falta a execução real)*
+- [x] Split estratificado, métricas: F1 macro, matriz de confusão, relatório por classe
+- [x] Tudo rastreado no MLflow; melhor modelo registrado no Model Registry
 - [ ] Tabela comparativa em `docs/experiments.md`
 
 ### Fase 2 — Servir em produção
