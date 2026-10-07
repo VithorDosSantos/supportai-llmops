@@ -65,6 +65,25 @@ flowchart LR
   e promoção do campeão.
 - Métricas versionadas no git em `reports/` (`data.json`, `train_*.json`).
 
+## Estado atual (Fase 2)
+
+```mermaid
+flowchart LR
+    C[Cliente] -->|POST /classify<br/>X-Request-ID| MW[Middleware<br/>request id, latência, logs JSON]
+    MW --> R[Rotas FastAPI<br/>/classify /health /metrics]
+    R --> M1[Pipeline categoria]
+    R --> M2[Pipeline urgência]
+    REG[(MLflow Registry<br/>@champion)] -. dev .-> L[Loader no startup]
+    EXP[(models/ exportado<br/>+ registry.json)] -. container .-> L
+    L --> M1 & M2
+    R --> PROM[/metrics Prometheus/]
+```
+
+- `src/supportai/api/`: app factory, carregamento dos modelos (registry ou diretório), schemas
+  Pydantic, logging JSON e métricas Prometheus.
+- `supportai.classifier.export`: copia os campeões do registry para `models/`, embutidos na imagem.
+- `Dockerfile` multi-stage; o CI constrói a imagem e faz smoke test.
+
 ## Decisões
 
 Ver [ADRs](decisions/).

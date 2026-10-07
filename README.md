@@ -12,7 +12,7 @@ Os tickets e a base de conhecimento estão em **inglês** (ver [ADR 0002](docs/d
 
 O foco não é só "funcionar". O projeto ataca problemas comuns de levar ML/LLM para produção: reprodutibilidade, avaliação automatizada de RAG, regressão de prompts no CI, custo e latência, PII/LGPD, observabilidade e drift.
 
-> **Status:** Fase 1 (dados + triagem) em andamento: pipeline de dados, base de conhecimento e baseline TF-IDF prontos; o modelo de embeddings está implementado e testado, mas falta a execução real. Todo número publicado aqui vem de uma execução real, com o comando para reproduzi-lo.
+> **Status:** Fase 2 (API em produção) implementada. Na Fase 1, falta só a execução real do modelo de embeddings (código e testes prontos). Todo número publicado aqui vem de uma execução real, com o comando para reproduzi-lo.
 
 ## Roadmap
 
@@ -20,7 +20,7 @@ O foco não é só "funcionar". O projeto ataca problemas comuns de levar ML/LLM
 |---|---|---|
 | 0 | Setup: estrutura, tooling, Postgres + pgvector, config, CI | ✅ |
 | 1 | Dados + classificador de triagem (TF-IDF vs. embeddings, MLflow, DVC) | 🚧 |
-| 2 | Servir em produção: FastAPI, Docker, benchmark de latência | ⏳ |
+| 2 | Servir em produção: FastAPI, Docker, benchmark de latência | ✅ |
 | 3 | RAG: chunking, busca híbrida, reranking, citações, recusa | ⏳ |
 | 4 | Avaliação: retrieval + geração, regressão no CI | ⏳ |
 | 5 | Custo, cache semântico, roteamento, PII, prompt injection, tracing, drift | ⏳ |
@@ -54,6 +54,68 @@ F1 macro no **teste** (2.082 tickets, split agrupado). O modelo é escolhido pel
 |---|---|---|
 | TF-IDF (palavras + caracteres) + LogReg | **0,434** | **0,478** |
 | Embeddings multilíngues + LogReg | pendente | pendente |
+
+## API de triagem
+
+Serviço FastAPI que carrega os campeões do Model Registry (ou de uma cópia exportada) no startup
+([ADR 0005](docs/decisions/0005-servir-modelos-registry-ou-exportados.md)).
+
+| Endpoint | Função |
+|---|---|
+| `POST /classify` | `{"text": "..."}` → categoria e urgência com confiança, versões dos modelos e latência |
+| `GET /health` | Liveness + quais modelos (nome e versão) estão carregados |
+| `GET /metrics` | Métricas Prometheus: requisições e latência por rota e status, predições por rótulo, versão dos modelos |
+| `GET /docs` | OpenAPI interativo |
+
+```bash
+API_ALLOW_MODEL_DESERIALIZATION=true uv run uvicorn --factory supportai.api.main:create_app --port 8000
+
+curl -s -X POST localhost:8000/classify -H 'content-type: application/json' \
+  -d '{"text": "I was charged twice for my order, please refund the duplicate payment."}'
+# {"request_id":"...","category":{"label":"billing_payments","confidence":0.9996},
+#  "urgency":{"label":"high","confidence":0.891},"models":{...},"latency_ms":...}
+```
+
+- **Logs JSON** com `X-Request-ID`: o header recebido é propagado (ou um id é gerado), volta na resposta e aparece em todos os logs da requisição.
+- **Entrada validada:** texto vazio, campos extras ou acima de `API_MAX_TEXT_CHARS` (5.000) retornam 422.
+- **Falha cedo:** se algum modelo não carrega, o processo não sobe.
+
+### Latência
+
+`uv run python scripts/benchmark_latency.py --workers N`: 1.000 tickets reais do split de teste (404 caracteres em média), cliente HTTP na mesma máquina (4 vCPUs), após aquecimento. Resultados em `reports/benchmark_workers*.json`.
+
+| Workers uvicorn | Concorrência | p50 | p95 | p99 | Throughput |
+|---|---|---|---|---|---|
+| 1 | 1 | 9,1 ms | 13,6 ms | 16,6 ms | 102 req/s |
+| 1 | 4 | 47,6 ms | 68,9 ms | 80,6 ms | 83 req/s |
+| 4 | 4 | 12,1 ms | 28,5 ms | 36,5 ms | 261 req/s |
+
+Com um processo, aumentar a concorrência **piora** o throughput: a inferência do TF-IDF é CPU-bound e segura o GIL, então as threads só disputam a CPU. Escalar por processos (workers ou réplicas) triplica o throughput. Cada worker ocupa ~380 MB de RSS, quase tudo de bibliotecas (`uv run python scripts/api_memory.py`).
+
+### Docker
+
+```bash
+uv run python -m supportai.classifier.export          # campeões -> models/
+docker build --target runtime-with-models -t supportai-api .
+docker run -p 8000:8000 supportai-api
+
+# ou, com os modelos montados do host:
+docker compose --profile api up --build api
+```
+
+A imagem é multi-stage (uv no builder, só o venv no runtime), roda como usuário não-root, tem healthcheck em `/health` e instala apenas as dependências de serviço: `mlflow-skinny` no lugar do MLflow completo, sem pyarrow, matplotlib ou pandera. O CI constrói a imagem a cada push.
+
+### Deploy (Render ou Railway)
+
+O registry e `models/` são locais (fora do git), então o deploy usa uma **imagem já construída**:
+
+1. `uv run python -m supportai.classifier.export`
+2. `docker build --target runtime-with-models -t ghcr.io/<usuario>/supportai-api:<versao> .` e `docker push` (GitHub Container Registry).
+3. **Render:** New → Web Service → *Deploy an existing image* → a imagem acima. Health check path `/health`. A plataforma injeta `PORT`, que a imagem já usa.
+   **Railway:** New → Deploy from Docker Image → a mesma imagem.
+4. Plano: 1 worker cabe em 512 MB (~380 MB por processo). Para mais throughput, aumente as réplicas, não as threads.
+
+> Estas instruções não foram executadas num deploy real a partir deste ambiente: a imagem é construída e testada no CI, mas o push para um registry e o deploy dependem das suas contas.
 
 ## Stack
 
