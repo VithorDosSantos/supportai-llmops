@@ -1,0 +1,86 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: python -m supportai.data.download
+    deps:
+    - path: src/supportai/data/download.py
+      hash: md5
+      md5: fb4b41a3c4cba355cbe4fe8e70db7970
+      size: 1956
+    params:
+      configs/data.yaml:
+        source:
+          repo_id: Tobi-Bueck/customer-support-tickets
+          revision: ddf1c81a5475992c4fa6752bf1e8b4e31f07bbeb
+          filename: aa_dataset-tickets-multi-lang-5-2-50-version.csv
+          sha256: 
+            f187c090e59581c2bbf3aa1377c8db4dd647464ecf2ae51bf8966e42e0ed6bc0
+          license: CC-BY-NC-4.0
+    outs:
+    - path: data/raw/tickets.csv
+      hash: md5
+      md5: f78ceb7e1d284dd33ced9e6e159d0a6e
+      size: 25996354
+  prepare:
+    cmd: python -m supportai.data.prepare
+    deps:
+    - path: data/raw/tickets.csv
+      hash: md5
+      md5: f78ceb7e1d284dd33ced9e6e159d0a6e
+      size: 25996354
+    - path: src/supportai/data/clean.py
+      hash: md5
+      md5: 541da359b0f0a59ebd98ba5825cc6198
+      size: 3016
+    - path: src/supportai/data/prepare.py
+      hash: md5
+      md5: 5820f09f983e2aa63d25e287ff2fdad8
+      size: 3323
+    - path: src/supportai/data/schemas.py
+      hash: md5
+      md5: 3f85322e83b67634ac89129f36c1ca95
+      size: 2778
+    - path: src/supportai/data/split.py
+      hash: md5
+      md5: 289b8a326effa704d54a789e14f0caef
+      size: 3063
+    params:
+      configs/data.yaml:
+        filter:
+          language: en
+          queues:
+            Technical Support: technical_support
+            Product Support: product_support
+            Customer Service: customer_service
+            IT Support: it_support
+            Billing and Payments: billing_payments
+            Returns and Exchanges: returns_exchanges
+          priority_map:
+            very_low: low
+            low: low
+            medium: medium
+            high: high
+            critical: high
+          min_text_chars: 20
+        split:
+          near_duplicate_threshold: 0.8
+          test_size: 0.15
+          val_size: 0.15
+          seed: 42
+    outs:
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 956fd9b38302257fe4f10a0435326ba1
+      size: 793227
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: f221ce306d12d7bea68a9ed1c21848a5
+      size: 4005460
+    - path: data/processed/val.parquet
+      hash: md5
+      md5: 77199f15563a35ba72363bd2f4d9514e
+      size: 790289
+    - path: reports/data.json
+      hash: md5
+      md5: 374cf001a584922f9ff0da2369ca2ce5
+      size: 1447
