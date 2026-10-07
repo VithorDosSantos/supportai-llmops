@@ -103,7 +103,7 @@ docker run -p 8000:8000 supportai-api
 docker compose --profile api up --build api
 ```
 
-A imagem é multi-stage (uv no builder, só o venv no runtime), roda como usuário não-root, tem healthcheck em `/health` e instala apenas as dependências de serviço: `mlflow-skinny` no lugar do MLflow completo, sem pyarrow, matplotlib ou pandera. O CI constrói a imagem a cada push.
+A imagem é multi-stage (uv no builder, só o venv no runtime), roda como usuário não-root, tem healthcheck em `/health` e instala apenas as dependências de serviço: `mlflow-skinny` no lugar do MLflow completo, sem pyarrow, matplotlib ou pandera. O CI constrói a imagem a cada push e reporta o tamanho: a separação das dependências levou o alvo `runtime` de **942 MB para 569 MB** (job "Imagem Docker" do CI, antes e depois do commit `build: separar dependências de serviço`).
 
 ### Deploy (Render ou Railway)
 
