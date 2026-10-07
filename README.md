@@ -40,7 +40,7 @@ O foco não é só "funcionar". O projeto ataca problemas comuns de levar ML/LLM
 **Limitações, ditas com honestidade:**
 
 - **O dataset é sintético** (gerado pelo autor com LLM). Não representa a distribuição de um e-commerce real, e os tickets falam mais de SaaS/TI corporativa do que de compras.
-- **Muitas paráfrases.** 8.043 dos 14.576 tickets têm uma quase-duplicata (cosseno ≥ 0,8). Por isso o split é **agrupado**: paráfrases do mesmo ticket ficam no mesmo split ([ADR 0003](docs/decisions/0003-split-agrupado-contra-quase-duplicatas.md)).
+- **Muitas paráfrases.** 8.043 dos 14.576 tickets têm uma quase-duplicata (cosseno ≥ 0,8). Por isso o split é **agrupado**: paráfrases do mesmo ticket ficam no mesmo split ([ADR 0003](docs/decisions/0003-split-agrupado-contra-quase-duplicatas.md)). Com um split aleatório, o mesmo modelo marcaria F1 macro 0,730 em vez de 0,445 na categoria: **+0,285 de inflação** (`uv run python scripts/split_leakage.py`).
 - **Rótulos ruidosos.** Só 12% dos tickets da fila `returns_exchanges` mencionam "return", "exchange" ou "refund" (`uv run python scripts/label_keywords.py`). Isso limita o F1 de qualquer modelo: os números absolutos valem para comparar abordagens, não como estimativa de desempenho em produção.
 - **Licença não comercial.** Adequada a portfólio; uso comercial exigiria outro dataset.
 

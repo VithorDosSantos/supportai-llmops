@@ -87,6 +87,19 @@ próprio (59% citam cobrança ou pagamento), é a de maior F1. O teto deste data
 qualquer modelo de texto, o que reforça o uso do F1 para **comparar** abordagens, e não como
 estimativa de produção.
 
-### Efeito do split agrupado
+### Efeito do split agrupado (vazamento por paráfrases)
 
-_Em execução._
+`uv run python scripts/split_leakage.py` → [`reports/split_leakage.json`](../reports/split_leakage.json)
+
+Mesmo modelo (TF-IDF + LogReg, C do campeão), treinado em treino + validação (12.494 tickets) e
+avaliado em 2.082 tickets, com dois splits do mesmo tamanho:
+
+| Alvo | Split agrupado | Split aleatório | Inflação |
+|---|---|---|---|
+| categoria | 0,445 | 0,730 | **+0,285** |
+| urgência | 0,492 | 0,714 | **+0,221** |
+
+Com um split aleatório, o F1 macro **sobe cerca de 0,25 só por memorizar paráfrases** que
+aparecem em treino e teste. Esse seria o número "bonito" e enganoso de uma avaliação ingênua.
+(Os valores agrupados aqui são um pouco maiores que os da tabela principal porque este experimento
+treina também com a validação.)
