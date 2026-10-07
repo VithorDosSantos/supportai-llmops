@@ -10,6 +10,7 @@ license = { text = "MIT" }
 # mantendo o CI rápido e cada dependência justificada.
 dependencies = [
     "huggingface-hub>=0.26",
+    "matplotlib>=3.9",
     "mlflow>=3.0",
     "pandas>=2.2",
     "pandera[pandas]>=0.22",

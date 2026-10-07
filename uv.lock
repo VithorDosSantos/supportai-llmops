@@ -4638,6 +4638,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "huggingface-hub" },
+    { name = "matplotlib" },
     { name = "mlflow" },
     { name = "pandas" },
     { name = "pandera", extra = ["pandas"] },
@@ -4664,6 +4665,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "huggingface-hub", specifier = ">=0.26" },
+    { name = "matplotlib", specifier = ">=3.9" },
     { name = "mlflow", specifier = ">=3.0" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pandera", extras = ["pandas"], specifier = ">=0.22" },
